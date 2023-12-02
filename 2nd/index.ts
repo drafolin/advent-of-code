@@ -11,6 +11,7 @@ const MAX_GREEN = 13;
 const MAX_BLUE = 14;
 
 let sum = 0;
+let powerSum = 0;
 
 for (let game of input) {
 	let gameId = game.split(" ")[1];
@@ -32,6 +33,8 @@ for (let game of input) {
 		}
 	}
 	console.log(blue, green, red);
+	let power = blue * green * red;
+	powerSum += power;
 	if (blue <= MAX_BLUE &&
 		green <= MAX_GREEN &&
 		red <= MAX_RED)
@@ -39,3 +42,4 @@ for (let game of input) {
 }
 
 sum;
+powerSum;
