@@ -40,6 +40,135 @@ const isTouching = (line: number, start: number, end: number): boolean => {
 	return false;
 };
 
+const boundNumber = (line: number, col: number): { start: number, end: number, val: number; } => {
+	let start = col;
+	while (cols[line][start] !== undefined &&
+		/\d/.test(cols[line][start])) {
+		start--;
+	}
+
+	start++;
+
+	let end = col;
+	while (cols[line][start] !== undefined &&
+		/\d/.test(cols[line][end])) {
+		end++;
+	}
+
+	end--;
+
+	let value = "";
+
+	for (let i = start; i <= end; ++i) {
+		value += cols[line][i];
+	}
+	return { start, end, val: parseInt(value) };
+};
+
+const gearRatio = (line: number, col: number): number => {
+	let firstNumber: {
+		val: number,
+		start: number,
+		line: number,
+		end: number;
+	} | undefined = undefined;
+	let secondNumber: {
+		val: number,
+		start: number,
+		line: number,
+		end: number;
+	} | undefined | undefined = undefined;
+
+	//check previous line
+	if (line - 1 >= 0) {
+		for (let i = col - 1; i <= col + 1; ++i) {
+			if (cols[line - 1][i] === undefined)
+				continue;
+			if (/\d/.test(cols[line - 1][i])) {
+				if (!secondNumber) {
+					console.log(firstNumber);
+					if (!firstNumber) {
+						firstNumber = { ...boundNumber(line - 1, i), line: line - 1 };
+						continue;
+					} else if (firstNumber.line !== line - 1 || (firstNumber.start > i || i > firstNumber.end)) {
+						secondNumber = { ...boundNumber(line - 1, i), line: line - 1 };
+						continue;
+					} else {
+						continue;
+					}
+				} else {
+					if ((line + 1 === firstNumber?.line &&
+						firstNumber.start <= i && i <= firstNumber.end) ||
+						(line + 1 === secondNumber?.line &&
+							secondNumber.start <= i && i <= secondNumber.end))
+						continue;
+					return 0;
+				}
+			}
+		}
+	};
+
+	// check this line
+	for (let i = col - 1; i <= col + 1; ++i) {
+		if (cols[line][i] === undefined)
+			continue;
+		if (/\d/.test(cols[line][i])) {
+			if (!secondNumber) {
+				if (!firstNumber) {
+					firstNumber = { ...boundNumber(line, i), line: line };
+					continue;
+				} else if (firstNumber.line !== line || firstNumber.start > i || i > firstNumber.end) {
+					secondNumber = { ...boundNumber(line, i), line: line };
+					continue;
+				} else {
+					continue;
+				}
+			} else {
+				if ((line + 1 === firstNumber?.line &&
+					firstNumber.start <= i && i <= firstNumber.end) ||
+					(line + 1 === secondNumber?.line &&
+						secondNumber.start <= i && i <= secondNumber.end))
+					continue;
+				return 0;
+			}
+		}
+	}
+
+	// check next line
+	if (line + 1 < cols.length) {
+		for (let i = col - 1; i <= col + 1; ++i) {
+			if (cols[line + 1][i] === undefined)
+				continue;
+			if (/\d/.test(cols[line + 1][i])) {
+				if (!secondNumber) {
+					if (!firstNumber) {
+						firstNumber = { ...boundNumber(line + 1, i), line: line + 1 };
+						continue;
+					} else if (firstNumber.line !== line + 1 || firstNumber.start > i || i > firstNumber.end) {
+						secondNumber = { ...boundNumber(line + 1, i), line: line + 1 };
+						continue;
+					} else {
+						continue;
+					}
+				} else {
+					if ((line + 1 === firstNumber?.line &&
+						firstNumber.start <= i && i <= firstNumber.end) ||
+						(line + 1 === secondNumber?.line &&
+							secondNumber.start <= i && i <= secondNumber.end))
+						continue;
+					return 0;
+				}
+			}
+		}
+	}
+
+
+	console.log(line, col);
+	console.log(firstNumber);
+	console.log(secondNumber);
+	return !firstNumber || !secondNumber ? 0 : firstNumber.val * secondNumber.val;
+};
+
 let sum = 0;
 
 cols.forEach((_, i) => {
@@ -84,3 +213,15 @@ cols.forEach((_, i) => {
 });
 
 sum;
+
+let gearSum = 0;
+
+cols.forEach((_, i) => {
+	cols[i].forEach((_, j) => {
+		if (cols[i][j] === "*") {
+			gearSum += gearRatio(i, j);
+		}
+	});
+});
+
+gearSum;
