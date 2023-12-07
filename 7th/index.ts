@@ -12,6 +12,7 @@ enum Combo {
 }
 
 enum Card {
+	j,
 	c2 = 1,
 	c3,
 	c4,
@@ -21,7 +22,6 @@ enum Card {
 	c8,
 	c9,
 	t,
-	j,
 	q,
 	k,
 	a
@@ -110,16 +110,19 @@ type CalculatedGame = { combo: Combo, hand: Card[]; };
 const calculateHand = (hand: Card[]): CalculatedGame => {
 
 	const counts: Map<Card, number> = new Map();
-
+	let jokers = 0;
 	for (let item of hand) {
-		counts.set(item, (counts.get(item) ?? 0) + 1);
+		if (item !== Card.j)
+			counts.set(item, (counts.get(item) ?? 0) + 1);
+		else
+			++jokers;
 	}
 
 	const combos = [...counts.values()];
-
-	if (combos.includes(5))
+	const max = Math.max(0, Math.max(...combos));
+	if (combos.includes(5) || max + jokers === 5)
 		return { combo: Combo.s5, hand };
-	else if (combos.includes(4))
+	else if (combos.includes(4) || max + jokers === 4)
 		return { combo: Combo.s4, hand };
 	else if (combos.includes(3)) {
 		return {
@@ -128,9 +131,25 @@ const calculateHand = (hand: Card[]): CalculatedGame => {
 				Combo.s3,
 			hand
 		};
-	} else if (combos.includes(2)) {
+	} else if (max + jokers >= 3) {
+		const sortedCombos = combos.sort((a, b) => b - a);
+		const remaining = jokers - (3 - sortedCombos[0]);
+		if (sortedCombos[1] + remaining >= 2) {
+			return {
+				combo: Combo.full,
+				hand
+			};
+		} else {
+			return {
+				combo: Combo.s3,
+				hand
+			};
+		}
+	} else if (combos.includes(2) || max + jokers >= 2) {
 		return {
-			combo: count(combos, 2) === 2 ?
+			combo: count(combos, 2) === 2 ||
+				(combos.includes(2) && jokers >= 1) ||
+				(count(combos, 1) === 2 && jokers === 2) ?
 				Combo.s2x2 :
 				Combo.s2,
 			hand
