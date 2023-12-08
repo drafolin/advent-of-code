@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^20.10.2"
+    "@types/node": "^20.10.2",
+    "mathjs": "^12.1.0"
   }
 }
