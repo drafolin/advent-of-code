@@ -1,14 +1,16 @@
 import * as fs from "fs";
+import * as math from "mathjs";
 
-/*const dataTxt = `RL
+/*const dataTxt = `LR
 
-AAA = (BBB, CCC)
-BBB = (DDD, EEE)
-CCC = (ZZZ, GGG)
-DDD = (DDD, DDD)
-EEE = (EEE, EEE)
-GGG = (GGG, GGG)
-ZZZ = (ZZZ, ZZZ)
+11A = (11B, XXX)
+11B = (XXX, 11Z)
+11Z = (11B, XXX)
+22A = (22B, XXX)
+22B = (22C, 22C)
+22C = (22Z, 22Z)
+22Z = (22B, 22B)
+XXX = (XXX, XXX)
 `;*/
 
 const dataTxt = fs.readFileSync(__dirname + "/data.txt", "utf-8");
@@ -27,12 +29,24 @@ for (let node of nodesData) {
 	nodes.set(node.split(" ")[0], [target[0], target[1]]);
 }
 
+const nodesArray = [...nodes];
+
 let iterations = 0;
-let currentNode = "AAA";
-while (currentNode !== "ZZZ") {
-	const [left, right] = nodes.get(currentNode)!;
-	currentNode = path[iterations % path.length] === "L" ? left : right;
+let currentNodes = nodesArray.filter(v => v[0].endsWith("A"));
+let lengths: number[] = [];
+while (currentNodes.length > 0) {
+	const direction = path[iterations % path.length] === "L" ? 0 : 1;
+	let temp: typeof currentNodes = [];
+	currentNodes.forEach(node => {
+		const res = nodesArray.find(v => v[0] === node[1][direction])!;
+		if (node[0].endsWith("Z")) {
+			lengths.push(iterations);
+			return;
+		}
+		temp.push(res);
+	});
+	currentNodes = temp;
 	++iterations;
 }
 
-iterations;
+console.log(math.lcm(...lengths));
