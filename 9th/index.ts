@@ -28,9 +28,9 @@ for (let line of data) {
 
 	for (let i = steps.length - 2; i >= 0; --i) {
 		const currentLine = steps[i];
-		steps[i].push(currentLine[currentLine.length - 1] + steps[i + 1][steps[i + 1].length - 1]);
+		steps[i].unshift(currentLine[0] - steps[i + 1][0]);
 	}
-	sum += steps[0][steps[0].length - 1];
+	sum += steps[0][0];
 }
 
 sum;
