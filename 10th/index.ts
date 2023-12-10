@@ -11,7 +11,13 @@ const dataTxt = readFileSync(__dirname + "/data.txt", "utf-8").split("\n");
 dataTxt.pop();
 const data = dataTxt.map(v => v.split(""));
 
+enum direction {
+	down,
+	neutral,
+	up
+}
 type Position = [number, number];
+type Node = { pos: Position, direction: direction; };
 
 const startingRow = data.find(v => v.includes("S"))!;
 const startingColIndex = startingRow.indexOf("S");
@@ -75,13 +81,31 @@ const last = <T>(a: T[]) => {
 	return a[a.length - 1];
 };
 
-let loop: Position[] = [startingPos, connecting(startingPos)![0]];
-while (!arrayEquals(last(loop), loop[0])) {
-	const connectingPos = connecting(last(loop))!;
-	loop.push(connectingPos[arrayEquals(connectingPos[0], loop[loop.length - 2]) ? 1 : 0]);
+let startingNode: Node = { pos: startingPos, direction: direction.neutral };
+const next: Node = { pos: connecting(startingPos)![0], direction: direction.neutral };
+if (next.pos[0] > startingPos[0])
+	startingNode.direction = direction.down;
+else if (next.pos[0] < startingPos[0])
+	startingNode.direction = direction.up;
+
+let loop: Node[] = [startingNode, next];
+loop.push();
+while (!arrayEquals(last(loop).pos, loop[0].pos)) {
+	const connectingPos = connecting(last(loop).pos)!;
+	const newPos = (connectingPos[arrayEquals(connectingPos[0], loop[loop.length - 2].pos) ? 1 : 0]);
+	if (newPos[0] > last(loop).pos[0])
+		loop[loop.length - 1].direction = direction.down;
+	else if (newPos[0] < last(loop).pos[0])
+		loop[loop.length - 1].direction = direction.down;
+
+	loop.push({ pos: newPos, direction: direction.neutral });
 };
 
 loop.pop();
+if (loop[0].pos[0] > loop[loop.length - 1].pos[0])
+	loop[loop.length - 1].direction = direction.down;
+else if (loop[0].pos[0] < loop[loop.length - 1].pos[0])
+	loop[loop.length - 1].direction = direction.up;
 
-const res = Math.ceil(loop.length / 2.0);
-res;
+const size = Math.ceil(loop.length / 2.0);
+size;
