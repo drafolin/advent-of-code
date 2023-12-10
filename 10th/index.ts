@@ -19,9 +19,6 @@ const startingRowIndex = data.indexOf(startingRow);
 
 const startingPos: Position = [startingRowIndex, startingColIndex];
 
-let currentPos: Position = startingPos;
-let lastPos = currentPos;
-
 const arrayEquals = <T>(a1: T[], a2: T[]) =>
 	a1.map((v, i) => v === a2[i]).every(v => v);
 
@@ -74,17 +71,17 @@ const connecting = (pos: Position): [Position, Position] | null => {
 	}
 };
 
-let previous = JSON.parse(JSON.stringify(currentPos)) as Position;
-currentPos = connecting(startingPos)![0];
-let iterations = 1;
-while (!arrayEquals(currentPos, startingPos)) {
-	console.log(startingPos, currentPos);
-	const connectingPos = connecting(currentPos)!;
-	let temp: Position = connectingPos[arrayEquals(connectingPos[0], previous) ? 1 : 0];
-	previous = JSON.parse(JSON.stringify(currentPos)) as Position;
-	currentPos = temp;
-	++iterations;
+const last = <T>(a: T[]) => {
+	return a[a.length - 1];
 };
 
-const res = Math.ceil(iterations / 2.0);
+let loop: Position[] = [startingPos, connecting(startingPos)![0]];
+while (!arrayEquals(last(loop), loop[0])) {
+	const connectingPos = connecting(last(loop))!;
+	loop.push(connectingPos[arrayEquals(connectingPos[0], loop[loop.length - 2]) ? 1 : 0]);
+};
+
+loop.pop();
+
+const res = Math.ceil(loop.length / 2.0);
 res;
