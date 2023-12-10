@@ -19,7 +19,7 @@ const startingRowIndex = data.indexOf(startingRow);
 
 const startingPos: Position = [startingRowIndex, startingColIndex];
 
-let currentPos: Position[] = [startingPos, startingPos];
+let currentPos: Position = startingPos;
 let lastPos = currentPos;
 
 const arrayEquals = <T>(a1: T[], a2: T[]) =>
@@ -74,19 +74,17 @@ const connecting = (pos: Position): [Position, Position] | null => {
 	}
 };
 
-let previous = JSON.parse(JSON.stringify(currentPos)) as Position[];
-currentPos = connecting(startingPos)!;
+let previous = JSON.parse(JSON.stringify(currentPos)) as Position;
+currentPos = connecting(startingPos)![0];
 let iterations = 1;
-while (!arrayEquals(currentPos[0], currentPos[1])) {
-	const connecting1 = connecting(currentPos[0])!;
-	const connecting2 = connecting(currentPos[1])!;
-	let temp: Position[] = [
-		connecting1[arrayEquals(connecting1[0], previous[0]) ? 1 : 0],
-		connecting2[arrayEquals(connecting2[0], previous[1]) ? 1 : 0]
-	];
-	previous = JSON.parse(JSON.stringify(currentPos)) as Position[];
-	currentPos = [temp[0], temp[1]];
+while (!arrayEquals(currentPos, startingPos)) {
+	console.log(startingPos, currentPos);
+	const connectingPos = connecting(currentPos)!;
+	let temp: Position = connectingPos[arrayEquals(connectingPos[0], previous) ? 1 : 0];
+	previous = JSON.parse(JSON.stringify(currentPos)) as Position;
+	currentPos = temp;
 	++iterations;
 };
 
-iterations;
+const res = Math.ceil(iterations / 2.0);
+res;
