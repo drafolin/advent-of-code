@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 
-const dataTxt = `...#......
+/*const dataTxt = `...#......
 .......#..
 #.........
 ..........
@@ -10,9 +10,10 @@ const dataTxt = `...#......
 ..........
 .......#..
 #...#.....
-`.split("\n");
-//const dataTxt = readFileSync(__dirname + "/data.txt", "utf-8").split("\n");
+`.split("\n");*/
+const dataTxt = readFileSync(__dirname + "/data.txt", "utf-8").split("\n");
 
+type Point = { x: number, y: number; };
 
 dataTxt.pop();
 const dataTmp = dataTxt.map(v => v.split(""));
@@ -36,3 +37,22 @@ for (let i in dataRowTmp[0]) {
 		data[j].push(v[i]);
 	});
 }
+
+
+let galaxies: Point[] = [];
+
+data.forEach((v, i) => {
+	v.forEach((c, j) => {
+		if (c === "#")
+			galaxies.push({ x: j, y: i });
+	});
+});
+
+let sum = 0;
+for (let i = 0; i < galaxies.length - 1; ++i) {
+	for (let j = i + 1; j < galaxies.length; ++j) {
+		sum += Math.abs(galaxies[i].x - galaxies[j].x) + Math.abs(galaxies[i].y - galaxies[j].y);
+	}
+}
+
+sum;
