@@ -1,5 +1,7 @@
 import { readFileSync } from "fs";
-import "lodash";
+import * as _ from "lodash";
+
+console.time();
 
 const testing = false;
 
@@ -15,7 +17,7 @@ const dataTxt = (testing ?
 
 dataTxt.pop();
 
-const getChoices = (data: string, springCount: number[]) => {
+const getChoices: (data: string, springCount: number[]) => number = _.memoize((data: string, springCount: number[]) => {
 	if (data.length === 0)
 		return (springCount.length === 0) ? 1 : 0;
 
@@ -34,14 +36,23 @@ const getChoices = (data: string, springCount: number[]) => {
 		else
 			return 0;
 	}
-};
+	return NaN;
+}, (data, springCount) => JSON.stringify({ data, springCount }));
 
 let sum = 0;
 for (let line of dataTxt) {
 	const data = line.split(" ")[0];
 	const springCount = line.split(" ")[1].split(",").map(v => parseInt(v));
+	let dataArr: string[] = [];
+	let countArr: number[] = [];
 
-	sum += getChoices(data, springCount);
+	for (let i = 0; i < 5; ++i) {
+		dataArr.push(data);
+		countArr.push(...springCount);
+	}
+
+	sum += getChoices(dataArr.join("?"), countArr);
 };
 
-sum;
+console.log(sum);
+console.timeEnd();
