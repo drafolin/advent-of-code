@@ -84,20 +84,36 @@ class Beam {
 	}
 };
 
-let beams: Beam[] = [new Beam({ dx: 1, dy: 0 }, { x: 0, y: 0 })];
+const calculateWith = (beam: Beam) => {
+	energised.clear();
+	let beams: Beam[] = [beam];
+	while (beams.length > 0) {
+		let newBeams: Beam[] = [];
+		for (let beam of beams) {
+			energised.add(JSON.stringify(beam.position));
+			newBeams.push(...beam.move());
+		}
+		let validBeams: Beam[] = [];
+		for (let beam of newBeams) {
+			if (beam.isValid())
+				validBeams.push(beam);
+		}
+		beams = validBeams;
+	}
+	return energised.size;
+};
 
-while (beams.length > 0) {
-	let newBeams: Beam[] = [];
-	for (let beam of beams) {
-		energised.add(JSON.stringify(beam.position));
-		newBeams.push(...beam.move());
-	}
-	let validBeams: Beam[] = [];
-	for (let beam of newBeams) {
-		if (beam.isValid())
-			validBeams.push(beam);
-	}
-	beams = validBeams;
+let max = 0;
+
+for (let i = 0; i < dataTxt[0].length; ++i) {
+	const onTop = calculateWith(new Beam({ dx: 0, dy: 1 }, { x: i, y: 0 }));
+	const onBottom = calculateWith(new Beam({ dx: 0, dy: -1 }, { x: i, y: dataTxt.length - 1 }));
+	max = Math.max(onTop, max, onBottom);
+}
+for (let i = 0; i < dataTxt.length; ++i) {
+	const onTop = calculateWith(new Beam({ dx: 1, dy: 1 }, { x: 0, y: i }));
+	const onBottom = calculateWith(new Beam({ dx: -1, dy: -1 }, { x: dataTxt[0].length - 1, y: 0 }));
+	max = Math.max(onTop, max, onBottom);
 }
 
-console.log(energised.size);
+console.log(max);
