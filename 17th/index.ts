@@ -71,7 +71,7 @@ type Gnome = { pos: Position, dir: Direction, dist: number; };
 
 const seen = new Set<string>();
 let totalHeatLoss = 0;
-const queue: Gnome[][] = [[{ dir: Direction.right, dist: 0, pos: new Position(0, 0) }]];
+const queue: Gnome[][] = [[{ dir: Direction.right, dist: 0, pos: new Position(0, 0) }, { dir: Direction.down, dist: 0, pos: new Position(0, 0) }]];
 
 const tryMove = (baseGnome: Gnome, dir: Direction) => {
 	const newGnome: Gnome = {
@@ -80,7 +80,7 @@ const tryMove = (baseGnome: Gnome, dir: Direction) => {
 		dist: baseGnome.dir === dir ? baseGnome.dist + 1 : 1
 	};
 
-	if (newGnome.dist > 3)
+	if (newGnome.dist > 10)
 		return;
 
 	if (!map.has(newGnome.pos.toString()))
@@ -101,11 +101,13 @@ const tryMove = (baseGnome: Gnome, dir: Direction) => {
 
 const checkStep = () => {
 	for (const gnome of (queue[totalHeatLoss] ?? [])) {
-		if (gnome.pos.col === dataTxt[0].length - 1 && gnome.pos.row === dataTxt.length - 1)
+		if (gnome.pos.col === dataTxt[0].length - 1 && gnome.pos.row === dataTxt.length - 1 && gnome.dist >= 4)
 			return;
-		tryMove(gnome, gnome.dir.turnLeft());
 		tryMove(gnome, gnome.dir);
-		tryMove(gnome, gnome.dir.turnRight());
+		if (gnome.dist >= 4) {
+			tryMove(gnome, gnome.dir.turnLeft());
+			tryMove(gnome, gnome.dir.turnRight());
+		}
 	}
 	totalHeatLoss++;
 	checkStep();
