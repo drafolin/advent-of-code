@@ -21,7 +21,20 @@ U 2 (#7a21e3)
 	.trim()
 	.split("\n")
 	.map(l => l.split(" "))
-	.map<[string, number]>(([a, b]) => [a, parseInt(b)]);
+	.map<[string, number]>(([_1, _2, c]) => {
+		const direction = (l: string) => {
+			switch (l) {
+				case "0": return "R";
+				case "1": return "D";
+				case "2": return "L";
+				case "3": return "U";
+				default: return "";
+			}
+		};
+		let color = c.slice(2, c.length - 1);
+		const dist = parseInt(color.slice(0, color.length - 1), 16);
+		return [direction(color[color.length - 1]), dist];
+	});
 
 const dirs = {
 	U: [-1, 0],
