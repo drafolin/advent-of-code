@@ -1,4 +1,5 @@
 import { readFileSync } from "fs";
+import { lcm } from "mathjs";
 
 const testingNr: number = 0;
 const dataTxt = (testingNr === 1 ?
@@ -26,23 +27,22 @@ let queue: { from: string, to: string, signal: Signal; }[] = [];
 class Module {
 	outputs: string[];
 	name: string;
+	private lastOut: boolean;
 	constructor(outputs: string[], name: string) {
 		this.name = name;
 		this.outputs = outputs;
+		this.lastOut = false;
 	}
 
-	input = (signal: Signal, input: string): { high: number, low: number; } => {
-		let count = { high: 0, low: 0 };
+	input = (signal: Signal, input: string) => {
 		this.outputs.forEach(v => {
-			if (signal === LOW)
-				++count.low;
-			else
-				++count.high;
-
 			queue.push({ to: v, from: this.name, signal: signal });
 		});
-		return count;
+		this.lastOut = signal;
 	};
+
+	state = () => this.lastOut;
+
 	connect = (input: string) => { };
 }
 
@@ -51,36 +51,35 @@ class DebugModule extends Module {
 		super([], name);
 	}
 
-	input = (signal: Signal, input: string): { high: number, low: number; } => {
+	input = (signal: Signal, input: string) => {
 		console.log("recieved signal: ", { signal, input });
-		return { high: 0, low: 0 };
 	};
 }
 
 class FlipFlop extends Module {
-	state: Signal;
+	memory: Signal;
 	constructor(outputs: string[], name: string) {
 		super(outputs, name);
-		this.state = false;
+		this.memory = false;
 	}
 
-	input = (signal: Signal): { high: number, low: number; } => {
-		let count = { high: 0, low: 0 };
+	input = (signal: Signal) => {
 		if (signal === LOW) {
-			this.state = !this.state;
+			this.memory = !this.memory;
 			this.outputs.forEach(v => {
-				if (this.state === LOW)
-					++count.low;
-				else
-					++count.high;
-				queue.push({ to: v, from: this.name, signal: this.state });
+				queue.push({ to: v, from: this.name, signal: this.memory });
 			});
 		}
-		return count;
 	};
+
+	state = () => this.memory;
 
 	connect = (input: string) => { };
 }
+
+let finalGate = "";
+let counts: number[] = [];
+let count = 0;
 
 class Conjunction extends Module {
 	memory: Map<string, boolean>;
@@ -89,24 +88,26 @@ class Conjunction extends Module {
 		this.memory = new Map<string, boolean>();
 	}
 
-	input = (signal: boolean, input: string): { high: number, low: number; } => {
-		let count = { high: 0, low: 0 };
+	input = (signal: boolean, input: string) => {
+		if (this.name === finalGate && signal === HIGH)
+			counts.push(count);
 		this.memory.set(input, signal);
-		if ([...this.memory.values()].every(v => v === HIGH))
+		if ([...this.memory.values()].every(v => v === HIGH)) {
 			this.outputs.forEach(v => {
-				++count.low;
 				queue.push({ to: v, from: this.name, signal: LOW });
 			});
-		else
+		}
+		else {
 			this.outputs.forEach(v => {
-				++count.high;
 				queue.push({ to: v, from: this.name, signal: HIGH });
 			});
-		return count;
+		}
 	};
 
+	state = () => [...this.memory.values()].every(v => v === HIGH) ? LOW : HIGH;
+
 	connect = (input: string) => {
-		this.memory.set(input, false);
+		this.memory.set(input, LOW);
 	};
 }
 
@@ -123,33 +124,27 @@ for (let node of dataTxt) {
 
 for (let node of nodes.keys()) {
 	nodes.get(node)!.outputs.forEach(v => {
-		if (!nodes.has(v))
+		if (!nodes.has(v)) {
+			if (v === "rx")
+				finalGate = node;
 			nodes.set(v, new DebugModule(v));
+		}
+
 		nodes.get(v)!.connect(node);
 	});
 }
 
-
-
 const pushButton = () => {
 	queue.push({ from: "", to: "broadcaster", signal: LOW });
 
-	let signalCount = { low: 1, high: 0 };
 	while (queue.length > 0) {
 		const instruction = queue.shift()!;
-		const res = nodes.get(instruction.to)!.input(instruction.signal, instruction.from);
-		signalCount.low += res.low;
-		signalCount.high += res.high;
+		nodes.get(instruction.to)!.input(instruction.signal, instruction.from);
 	}
-	return signalCount;
 };
 
-let count = { low: 0, high: 0 };
-for (let i = 0; i < 1000; ++i) {
-	const res = pushButton();
-	count.low += res.low;
-	count.high += res.high;
+while (counts.length < 4) {
+	count++;
+	pushButton();
 }
-
-console.log(count);
-console.log(count.low * count.high);
+console.log(lcm(lcm(counts[0], counts[1]), lcm(counts[2], counts[3])));
