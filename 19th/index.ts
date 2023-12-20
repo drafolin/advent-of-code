@@ -27,8 +27,8 @@ type entry = { x: number, m: number, a: number, s: number; };
 const entries = inputs.map(v => {
 	let entry: entry = { x: 0, m: 0, a: 0, s: 0 };
 	v.slice(1, v.length - 1).split(",").forEach(v => {
-		const [k, val] = v.split("=");
-		entry[k] = parseInt(val);
+		const [k, val] = v.split("=") as [keyof entry, string];
+		(entry[k] as number) = parseInt(val);
 	});
 	return entry;
 });
@@ -77,16 +77,43 @@ const applyWorkflow = (input: entry, wf: string): "R" | "A" | string => {
 	return flow.default;
 };
 
-const runTillEnd = (input: entry, flow: string) => {
+const runTillEnd = (input: entry, flow: string): "R" | "A" | string => {
 	const res = applyWorkflow(input, flow);
 	return res === "R" || res === "A" ? res : runTillEnd(input, res);
 };
 
-let sum = 0;
-for (let input of entries) {
-	if (runTillEnd(input, "in") === "A")
-		for (let v in input)
-			sum += input[v];
+const splits = new Map([
+	["x", [0, 4000]],
+	["m", [0, 4000]],
+	["a", [0, 4000]],
+	["s", [0, 4000]]]);
+
+
+for (let flow of flows.values()) {
+	for (let flowRule of flow.rules) {
+		let tArr = splits.get(flowRule.condition.field)!;
+		tArr.push(flowRule.condition.value - (flowRule.condition.condition === '<' ? 1 : 0));
+		splits.set(flowRule.condition.field, tArr);
+	}
 }
 
-sum;
+const zip = <T>(...rows: T[][]) => rows[0].map((_, c) => rows.map(row => row[c]));
+
+const ranges = (x: number[]) => zip(x.slice(1), x).map(([a, b]) => [a, a - b]);
+const [X, M, A, S] = [...splits.keys()].map((x) => ranges(splits.get(x)!.sort((a, b) => a - b)));
+
+console.log(X.length * M.length * A.length * S.length);
+
+let C = 0;
+for (const [x, dx] of X) {
+	for (const [m, dm] of M) {
+		for (const [a, da] of A) {
+			for (const [s, ds] of S) {
+				const res = runTillEnd({ x, m, a, s }, "in");
+				C += res === "A" ? dx * dm * da * ds : 0;
+			}
+		}
+	}
+	(async () => console.log(X.findIndex(v => v[0] === x), "/", X.length))();
+}
+console.log(C);
