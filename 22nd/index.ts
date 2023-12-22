@@ -103,3 +103,19 @@ fallingBricks.forEach(brick => {
 
 brickStack = fallenBricks;
 console.log(brickStack.filter(brickToTake => !brickToTake.supports.some(v => v.supportedBy.length === 1)).length);
+console.log(brickStack
+	.filter(brickToTake => brickToTake.supports.some(v => v.supportedBy.length === 1))
+	.reduce((sum, cv) => {
+		let collapsingStack = brickStack.filter(v => v.toString() !== cv.toString());
+		let goneBricks = [cv];
+		let notSupported: Brick[] = [];
+		do {
+			notSupported = collapsingStack
+				.filter(v => v.supportedBy.length > 0 &&
+					v.supportedBy.every(v => goneBricks.includes(v))
+				);
+			collapsingStack = collapsingStack.filter(v => !notSupported.includes(v));
+			goneBricks.push(...notSupported);
+		} while (notSupported.length !== 0);
+		return goneBricks.length - 1 + sum;
+	}, 0));
