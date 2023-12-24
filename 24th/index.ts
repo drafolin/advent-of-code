@@ -1,4 +1,7 @@
+// USE NODE.JS FOR Z3. BUN IS NOT WORKING.
+
 import { readFileSync } from "fs";
+import { init } from "z3-solver";
 
 const testing = false;
 const dataTxt = (testing ?
@@ -47,51 +50,42 @@ for (let stone of dataTxt) {
 }
 
 const availableStones = [...hailStones.keys()];
+(async () => {
+	const { Context } = await init();
+	const Z3 = Context("main");
 
-const zoneToCheck: { from: Point2, to: Point2; } = testing ? {
-	from: {
-		x: 7,
-		y: 7,
-	},
-	to: {
-		x: 27,
-		y: 27
+	const x = Z3.Real.const("x");
+	const y = Z3.Real.const("y");
+	const z = Z3.Real.const("z");
+
+	const dx = Z3.Real.const("dx");
+	const dy = Z3.Real.const("dy");
+	const dz = Z3.Real.const("dz");
+
+	const solver = new Z3.Solver();
+
+	for (let i in availableStones) {
+		const posS = availableStones[i];
+		const diff = hailStones.get(posS)!;
+		const pos = stop3(posS);
+
+		const t = Z3.Real.const(`t${i}`);
+
+		solver.add(t.ge(0));
+		solver.add(x.add(dx.mul(t)).eq(t.mul(diff.x).add(pos.x)));
+		solver.add(y.add(dy.mul(t)).eq(t.mul(diff.y).add(pos.y)));
+		solver.add(z.add(dz.mul(t)).eq(t.mul(diff.z).add(pos.z)));
 	}
-} : {
-	from: {
-		x: 200000000000000,
-		y: 200000000000000,
-	},
-	to: {
-		x: 400000000000000,
-		y: 400000000000000
-	}
-};
+	console.log("Solving...");
+	const isSat = await solver.check();
+	console.log("Solved.");
 
-let collisionCount = 0;
+	if (isSat !== "sat") console.error("Couldn't find a solution");
 
-for (let stoneI in availableStones) {
-	const iPosS = availableStones[stoneI];
-	const iPos = stop3(iPosS);
-	const { x: iDx, y: iDy } = hailStones.get(iPosS)!;
-	for (let stoneJ = +stoneI + 1; stoneJ < availableStones.length; ++stoneJ) {
-		const jPosS = availableStones[stoneJ];
-		const jPos = stop3(jPosS);
-		const { x: jDx, y: jDy } = hailStones.get(jPosS)!;
-		let dx = jPos.x - iPos.x;
-		let dy = jPos.y - iPos.y;
-		let det = jDx * iDy - jDy * iDx;
-		let u = (dy * jDx - dx * jDy) / det;
-		let v = (dy * iDx - dx * iDy) / det;
-		let result = { x: iPos.x + iDx * u, y: iPos.y + iDy * u };
-		console.log(result);
-		if (u > 0 && v > 0 &&
-			zoneToCheck.from.x <= result.x &&
-			result.x <= zoneToCheck.to.x &&
-			zoneToCheck.from.y <= result.y &&
-			result.y <= zoneToCheck.to.y)
-			++collisionCount;
-	}
-}
+	const model = solver.model();
+	const rx = Number(model.eval(x));
+	const ry = Number(model.eval(y));
+	const rz = Number(model.eval(z));
 
-console.log(collisionCount);
+	console.log(rx + ry + rz);
+})();
