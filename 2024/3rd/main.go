@@ -51,36 +51,39 @@ func getMults(input string) [][2]int {
 }
 
 func getConditionalMults(input string) [][2]int {
-	r, err := regexp.Compile("mul\\((\\d{1,3}),(\\d{1,3})\\)")
+	r, err := regexp.Compile("(mul|don't|do)\\((?:(\\d{1,3}),(\\d{1,3}))?\\)")
 
 	if err != nil {
 		panic(err)
 	}
 
-	verbr, err := regexp.Compile("do(n't)?\\(\\)")
-	if err != nil {
-		panic(err)
-	}
-
-	matches := r.FindAllStringSubmatchIndex(input, -1)
-	verbs := verbr.FindAllStringSubmatchIndex(input, -1)
+	matches := r.FindAllStringSubmatch(input, -1)
 
 	shouldDo := true
 
 	corrects := make([][2]int, 0)
 
 	for _, match := range matches {
-		for len(verbs) > 0 && verbs[0][0] < match[0] {
-			verb := verbs[0]
-			verbs = verbs[1:]
+		switch match[1] {
+		case "mul":
+			if !shouldDo {
+				break
+			}
 
-			shouldDo = verb[2] == -1
-		}
+			match1, err := strconv.Atoi(match[2])
+			if err != nil {
+				panic(err)
+			}
+			match2, err := strconv.Atoi(match[3])
+			if err != nil {
+				panic(err)
+			}
 
-		if shouldDo {
-			n1, _ := strconv.Atoi(input[match[2]:match[3]])
-			n2, _ := strconv.Atoi(input[match[4]:match[5]])
-			corrects = append(corrects, [2]int{n1, n2})
+			corrects = append(corrects, [2]int{match1, match2})
+		case "don't":
+			shouldDo = false
+		case "do":
+			shouldDo = true
 		}
 	}
 
