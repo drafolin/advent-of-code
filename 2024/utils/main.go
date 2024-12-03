@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"strings"
 )
 
 func ReadInput(day string) string {
@@ -13,4 +14,15 @@ func ReadInput(day string) string {
 	}
 
 	return dataString
+}
+
+func ReadInputSplitted(day string) []string {
+	str := ReadInput(day)
+	splitted := strings.Split(str, "\n")
+
+	if splitted[len(splitted)-1] == "" {
+		splitted = splitted[:len(splitted)-1]
+	}
+
+	return splitted
 }
