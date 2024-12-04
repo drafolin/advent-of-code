@@ -13,6 +13,10 @@ func ReadInput(day string) string {
 		panic(err)
 	}
 
+	if dataString[len(dataString)-1] == '\n' {
+		dataString = dataString[:len(dataString)-1]
+	}
+
 	return dataString
 }
 
@@ -25,4 +29,19 @@ func ReadInputSplitted(day string) []string {
 	}
 
 	return splitted
+}
+
+func StrToLineList(in string) []string {
+	return strings.Split(in, "\n")
+}
+
+func StrToGrid(in string) [][]rune {
+	splitted := StrToLineList(in)
+	res := make([][]rune, len(splitted))
+
+	for i, line := range splitted {
+		res[i] = []rune(line)
+	}
+
+	return res
 }
