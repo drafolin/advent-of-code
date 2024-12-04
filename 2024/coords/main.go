@@ -2,6 +2,7 @@ package coords
 
 import (
 	"fmt"
+	"github.com/drafolin/advent-of-code/2024/coords/directions"
 	"reflect"
 )
 
@@ -10,39 +11,26 @@ type Coordinate struct {
 	Y int
 }
 
-type Direction int
-
-const (
-	Up Direction = iota
-	UpLeft
-	Left
-	DownLeft
-	Down
-	DownRight
-	Right
-	UpRight
-)
-
-func (c Coordinate) MoveTowards(dir Direction) Coordinate {
+func (c Coordinate) MoveTowards(dir directions.Direction) Coordinate {
 	switch dir {
-	case Up:
+	case directions.Up:
 		c.Y--
-	case UpLeft:
+	case directions.UpLeft:
 		c.Y--
 		c.X--
-	case Left:
+	case directions.Left:
 		c.X--
-	case DownLeft:
+	case directions.DownLeft:
 		c.X--
 		c.Y++
-	case Down:
+	case directions.Down:
 		c.Y++
-	case DownRight:
+	case directions.DownRight:
 		c.Y++
 		c.X++
-	case Right:
+	case directions.Right:
 		c.X++
-	case UpRight:
+	case directions.UpRight:
 		c.X++
 		c.Y--
 	}
