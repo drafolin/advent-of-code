@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/drafolin/advent-of-code/2024/utils"
 	"slices"
 	"strconv"
@@ -20,21 +21,24 @@ func main() {
 		panic(err)
 	}
 
-	sum := 0
+	correctSum := 0
+	incorrectSum := 0
 
 	for _, update := range updates {
 		valid := true
+		applyingRules := make([]pair, 0)
 		for _, rule := range rules {
 			if !slices.Contains(update, rule[0]) || !slices.Contains(update, rule[1]) {
 				continue
 			}
+
+			applyingRules = append(applyingRules, rule)
 
 			index1 := slices.Index(update, rule[0])
 			index2 := slices.Index(update, rule[1])
 
 			if index1 >= index2 {
 				valid = false
-				break
 			}
 		}
 
@@ -43,11 +47,28 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			sum += middle
+			correctSum += middle
+		} else {
+			slices.SortStableFunc(update, func(i, j int) int {
+				if (slices.Contains(applyingRules, pair{i, j})) {
+					return -1
+				} else if (slices.Contains(applyingRules, pair{j, i})) {
+					return 1
+				} else {
+					return 0
+				}
+			})
+
+			middle, err := getMiddle(update)
+			if err != nil {
+				panic(err)
+			}
+			incorrectSum += middle
 		}
 	}
 
-	println(sum)
+	fmt.Println("Correct sum :", correctSum)
+	fmt.Println("Incorrect sum :", incorrectSum)
 }
 
 func parseInput(in string) ([]pair, [][]int, error) {
