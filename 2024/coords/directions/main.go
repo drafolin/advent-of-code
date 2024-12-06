@@ -1,5 +1,9 @@
 package directions
 
+import (
+	"github.com/drafolin/advent-of-code/2024/coords/angles"
+)
+
 type Direction int
 
 const (
@@ -13,8 +17,8 @@ const (
 	UpRight
 )
 
-func (direction Direction) Opposite() Direction {
-	switch direction {
+func (dir Direction) Opposite() Direction {
+	switch dir {
 	case Up:
 		return Down
 	case UpLeft:
@@ -34,4 +38,39 @@ func (direction Direction) Opposite() Direction {
 	}
 
 	return -1
+}
+
+func (dir Direction) GetMatrix() [2]int {
+	switch dir {
+	case Up:
+		return [2]int{0, -1}
+	case UpLeft:
+		return [2]int{-1, -1}
+	case Left:
+		return [2]int{-1, 0}
+	case DownLeft:
+		return [2]int{-1, 1}
+	case Down:
+		return [2]int{0, 1}
+	case DownRight:
+		return [2]int{1, 1}
+	case Right:
+		return [2]int{1, 0}
+	case UpRight:
+		return [2]int{1, -1}
+	}
+
+	return [2]int{}
+}
+
+func (dir Direction) Rotate(ang angles.Angle) Direction {
+	if ang%45 != 0 {
+		panic("Angle must be a multiple of 45.")
+	}
+
+	if ang < 0 {
+		ang += 360
+	}
+
+	return Direction((int(dir) + int(ang)/45) % 8)
 }

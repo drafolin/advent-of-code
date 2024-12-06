@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+type Grid [][]rune
+
 func ReadInput(day string) string {
 	data, err := os.ReadFile(day + "/input")
 	dataString := string(data)
@@ -35,12 +37,23 @@ func StrToLineList(in string) []string {
 	return strings.Split(in, "\n")
 }
 
-func StrToGrid(in string) [][]rune {
+func StrToGrid(in string) Grid {
 	splitted := StrToLineList(in)
-	res := make([][]rune, len(splitted))
+	res := make(Grid, len(splitted))
 
 	for i, line := range splitted {
 		res[i] = []rune(line)
+	}
+
+	return res
+}
+
+func CopyGrid(in Grid) Grid {
+	res := make(Grid, len(in))
+
+	for i, line := range in {
+		res[i] = make([]rune, len(line))
+		copy(res[i], line)
 	}
 
 	return res
