@@ -12,12 +12,8 @@ type operator int
 const (
 	mul operator = iota
 	add
+	concat
 )
-
-type solution struct {
-	val int
-	ops []operator
-}
 
 func main() {
 	// data := "190: 10 19\n3267: 81 40 27\n83: 17 5\n156: 15 6\n7290: 6 8 6 15\n161011: 16 10 13\n192: 17 8 14\n21037: 9 7 18 13\n292: 11 6 16 20"
@@ -44,7 +40,7 @@ func main() {
 			}
 		}
 
-		if compute(nbrs, mul, target) || compute(nbrs, add, target) {
+		if compute(nbrs, mul, target) || compute(nbrs, add, target) || compute(nbrs, concat, target) {
 			cnt += target
 		}
 	}
@@ -59,17 +55,25 @@ func compute(nbrs []int, with operator, target int) bool {
 
 	firstNr := nbrs[0]
 
-	if with == mul {
+	switch with {
+	case mul:
 		firstNr *= nbrs[1]
-	} else {
+	case add:
 		firstNr += nbrs[1]
+	case concat:
+		var err error
+		firstNr, err = strconv.Atoi(strconv.Itoa(firstNr) + strconv.Itoa(nbrs[1]))
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	newNbrs := make([]int, len(nbrs)-1)
 	copy(newNbrs, nbrs[1:])
 	newNbrs[0] = firstNr
 
-	if compute(newNbrs, mul, target) || compute(newNbrs, add, target) {
+	if compute(newNbrs, mul, target) || compute(newNbrs, add, target) || compute(newNbrs, concat, target) {
 		return true
 	}
 
