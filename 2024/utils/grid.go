@@ -23,3 +23,7 @@ func CopyGrid(in Grid) Grid {
 
 	return res
 }
+
+func (g Grid) At(c Coordinate) rune {
+	return g[c.Y][c.X]
+}

@@ -58,3 +58,11 @@ func (c Coordinate) IsInGrid(g interface{}) (bool, error) {
 
 	return true, nil
 }
+
+func (c Coordinate) Diff(other Coordinate) Coordinate {
+	return Coordinate{X: c.X - other.X, Y: c.Y - other.Y}
+}
+
+func (c Coordinate) Add(other Coordinate) Coordinate {
+	return Coordinate{X: c.X + other.X, Y: c.Y + other.Y}
+}
