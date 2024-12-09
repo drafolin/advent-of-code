@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/drafolin/advent-of-code/2024/coords"
-	"github.com/drafolin/advent-of-code/2024/coords/directions"
 	"github.com/drafolin/advent-of-code/2024/utils"
 	"slices"
 	"sync"
 )
 
 type Guard struct {
-	Pos coords.Coordinate
-	Dir directions.Direction
+	Pos utils.Coordinate
+	Dir utils.Direction
 }
 
 func main() {
@@ -25,14 +23,14 @@ func main() {
 	for y, line := range grid {
 		for x, char := range line {
 			if char == '^' || char == 'V' || char == '<' || char == '>' {
-				guard = Guard{Pos: coords.Coordinate{X: x, Y: y}, Dir: getDirectionFromCharacter(char)}
+				guard = Guard{Pos: utils.Coordinate{X: x, Y: y}, Dir: getDirectionFromCharacter(char)}
 			}
 		}
 	}
 
 	type Position struct {
-		Coord coords.Coordinate
-		Dir   directions.Direction
+		Coord utils.Coordinate
+		Dir   utils.Direction
 	}
 	visitedPos := []Position{{Coord: guard.Pos, Dir: guard.Dir}}
 
@@ -94,22 +92,22 @@ func main() {
 	fmt.Println(workingObstacles)
 }
 
-func getDirectionFromCharacter(char rune) directions.Direction {
+func getDirectionFromCharacter(char rune) utils.Direction {
 	switch char {
 	case '^':
-		return directions.Up
+		return utils.Up
 	case 'V':
-		return directions.Down
+		return utils.Down
 	case '<':
-		return directions.Left
+		return utils.Left
 	case '>':
-		return directions.Right
+		return utils.Right
 	}
 
 	return -1
 }
 
-func (guard Guard) GetNextPos(grid utils.Grid) (coords.Coordinate, directions.Direction, bool) {
+func (guard Guard) GetNextPos(grid utils.Grid) (utils.Coordinate, utils.Direction, bool) {
 	nextPos := guard.Pos.MoveTowards(guard.Dir)
 
 	if v, err := nextPos.IsInGrid(grid); !v {

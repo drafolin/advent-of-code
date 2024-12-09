@@ -1,4 +1,4 @@
-package angles
+package utils
 
 type Angle int
 

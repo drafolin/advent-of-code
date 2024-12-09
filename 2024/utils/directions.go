@@ -1,8 +1,4 @@
-package directions
-
-import (
-	"github.com/drafolin/advent-of-code/2024/coords/angles"
-)
+package utils
 
 type Direction int
 
@@ -63,7 +59,7 @@ func (dir Direction) GetMatrix() [2]int {
 	return [2]int{}
 }
 
-func (dir Direction) Rotate(ang angles.Angle) Direction {
+func (dir Direction) Rotate(ang Angle) Direction {
 	if ang%45 != 0 {
 		panic("Angle must be a multiple of 45.")
 	}

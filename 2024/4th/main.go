@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/drafolin/advent-of-code/2024/coords"
-	"github.com/drafolin/advent-of-code/2024/coords/directions"
 	"github.com/drafolin/advent-of-code/2024/utils"
 )
 
@@ -33,7 +31,7 @@ func main() {
 	for y, line := range dataGrid {
 		for x, char := range line {
 			if char == 'A' {
-				coord := coords.Coordinate{X: x, Y: y}
+				coord := utils.Coordinate{X: x, Y: y}
 				diagCnt := 0
 				for _, diag := range checkDiagsFor(coord, 'M', dataGrid) {
 					sCoord := coord.MoveTowards(diag.Opposite())
@@ -50,10 +48,10 @@ func main() {
 	fmt.Println(cnt)
 }
 
-func checkDiagsFor(coord coords.Coordinate, letter rune, data [][]rune) []directions.Direction {
-	res := make([]directions.Direction, 0)
+func checkDiagsFor(coord utils.Coordinate, letter rune, data [][]rune) []utils.Direction {
+	res := make([]utils.Direction, 0)
 
-	for _, direction := range []directions.Direction{directions.UpLeft, directions.UpRight, directions.DownLeft, directions.DownRight} {
+	for _, direction := range []utils.Direction{utils.UpLeft, utils.UpRight, utils.DownLeft, utils.DownRight} {
 		newCoord := coord.MoveTowards(direction)
 		if v, err := newCoord.IsInGrid(data); !v {
 			if err != nil {
