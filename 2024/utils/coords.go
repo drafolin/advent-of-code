@@ -37,7 +37,7 @@ func (c Coordinate) MoveTowards(dir Direction) Coordinate {
 	return c
 }
 
-func (c Coordinate) IsInGrid(g interface{}) (bool, error) {
+func (c Coordinate) IsInAnyGrid(g interface{}) (bool, error) {
 	val := reflect.ValueOf(g)
 	if val.Kind() != reflect.Slice {
 		return false, fmt.Errorf("The provided argument is not a slice.")
@@ -57,6 +57,18 @@ func (c Coordinate) IsInGrid(g interface{}) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (c Coordinate) IsInGrid(g Grid) bool {
+	if c.Y >= len(g) || c.Y < 0 {
+		return false
+	}
+
+	if c.X >= len(g[c.Y]) || c.X < 0 {
+		return false
+	}
+
+	return true
 }
 
 func (c Coordinate) Diff(other Coordinate) Coordinate {

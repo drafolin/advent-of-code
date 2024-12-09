@@ -110,7 +110,7 @@ func getDirectionFromCharacter(char rune) utils.Direction {
 func (guard Guard) GetNextPos(grid utils.Grid) (utils.Coordinate, utils.Direction, bool) {
 	nextPos := guard.Pos.MoveTowards(guard.Dir)
 
-	if v, err := nextPos.IsInGrid(grid); !v {
+	if v, err := nextPos.IsInAnyGrid(grid); !v {
 		if err != nil {
 			panic(err)
 		}

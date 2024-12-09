@@ -35,7 +35,7 @@ func main() {
 				diagCnt := 0
 				for _, diag := range checkDiagsFor(coord, 'M', dataGrid) {
 					sCoord := coord.MoveTowards(diag.Opposite())
-					if v, _ := sCoord.IsInGrid(dataGrid); v && dataGrid[sCoord.Y][sCoord.X] == 'S' {
+					if v, _ := sCoord.IsInAnyGrid(dataGrid); v && dataGrid[sCoord.Y][sCoord.X] == 'S' {
 						diagCnt++
 					}
 				}
@@ -53,7 +53,7 @@ func checkDiagsFor(coord utils.Coordinate, letter rune, data [][]rune) []utils.D
 
 	for _, direction := range []utils.Direction{utils.UpLeft, utils.UpRight, utils.DownLeft, utils.DownRight} {
 		newCoord := coord.MoveTowards(direction)
-		if v, err := newCoord.IsInGrid(data); !v {
+		if v, err := newCoord.IsInAnyGrid(data); !v {
 			if err != nil {
 				panic(err)
 			}
