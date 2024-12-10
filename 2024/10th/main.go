@@ -9,10 +9,11 @@ import (
 
 func main() {
 	// data := "0123\n1234\n8765\n9876"
-	data := "89010123\n78121874\n87430965\n96549874\n45678903\n32019012\n01329801\n10456732"
-	// data := utils.ReadInput("10th")
+	// data := "89010123\n78121874\n87430965\n96549874\n45678903\n32019012\n01329801\n10456732"
+	data := utils.ReadInput("10th")
 	dataGrid := utils.StrToGrid(data)
 	scoreSum := 0
+	ratingSum := 0
 
 	for y, line := range dataGrid {
 		for x, char := range line {
@@ -30,12 +31,16 @@ func main() {
 			}
 
 			score := len(final)
+			rating := len(res)
 
 			scoreSum += score
+			ratingSum += rating
 		}
 	}
 
-	fmt.Println(scoreSum)
+	fmt.Printf("Score sum: %d\n", scoreSum)
+	fmt.Printf("Rating sum: %d\n", ratingSum)
+
 }
 
 func recurseToEnd(grid utils.Grid, nextNr int, currentCoord utils.Coordinate) []utils.Coordinate {
