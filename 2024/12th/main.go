@@ -12,22 +12,26 @@ type area struct {
 }
 
 func main() {
+	/*
+		dataStr := []string{
+			"AAAA\nBBCD\nBBCC\nEEEC",
+			"OOOOO\nOXOXO\nOOOOO\nOXOXO\nOOOOO",
+			"RRRRIICCFF\nRRRRIICCCF\nVVRRRCCFFF\nVVRCCCJFFF\nVVVVCJJCFE\nVVIVCCJJEE\nVVIIICJJEE\nMIIIIIJJEE\nMIIISIJEEE\nMMMISSJEEE",
+		}
+	*/
+
 	dataStr := []string{
-		"AAAA\nBBCD\nBBCC\nEEEC",
-		"OOOOO\nOXOXO\nOOOOO\nOXOXO\nOOOOO",
-		"RRRRIICCFF\nRRRRIICCCF\nVVRRRCCFFF\nVVRCCCJFFF\nVVVVCJJCFE\nVVIVCCJJEE\nVVIIICJJEE\nMIIIIIJJEE\nMIIISIJEEE\nMMMISSJEEE",
-	}
-	/*dataStr := []string{
 		utils.ReadInput("12th"),
-	}*/
+	}
 
 	for i, dataStr := range dataStr {
 		data := utils.StrToGrid(dataStr)
-		fmt.Println(i, scanField(data))
+		sumPerimeters, sumSides := scanField(data)
+		fmt.Println(i, sumPerimeters, sumSides)
 	}
 }
 
-func scanField(data utils.Grid) int {
+func scanField(data utils.Grid) (int, int) {
 	res := make([]*area, 0)
 
 	for y, row := range data {
@@ -41,11 +45,13 @@ func scanField(data utils.Grid) int {
 		}
 	}
 
-	sum := 0
+	sumPerimeters := 0
+	sumSides := 0
 	for _, group := range res {
-		sum += group.perimeter * len(group.plots)
+		sumPerimeters += group.perimeter * len(group.plots)
+		sumSides += len(group.plots) * countCorners(*group, data)
 	}
-	return sum
+	return sumPerimeters, sumSides
 }
 
 func scanNewArea(data utils.Grid, coordinate utils.Coordinate, res *[]*area) {
@@ -78,4 +84,37 @@ func scanArea(data utils.Grid, coord utils.Coordinate, res *[]*area, i int) {
 			scanArea(data, newCoord, res, i)
 		}
 	}
+}
+
+func isSamePlant(coord1, coord2 utils.Coordinate, data utils.Grid) bool {
+	if coord1.IsInGrid(data) != coord2.IsInGrid(data) {
+		return false
+	}
+
+	if !coord1.IsInGrid(data) {
+		return true
+	}
+
+	return data.At(coord1) == data.At(coord2)
+}
+
+func countCorners(group area, data utils.Grid) int {
+	corners := 0
+	for _, plot := range group.plots {
+		for _, dir := range []utils.Direction{utils.UpLeft, utils.UpRight, utils.DownLeft, utils.DownRight} {
+			if !slices.Contains(group.plots, plot.MoveTowards(dir.Rotate(45))) && !slices.Contains(group.plots, plot.MoveTowards(dir.Rotate(-45))) {
+				corners++
+				continue
+			}
+
+			if slices.Contains(group.plots, plot.MoveTowards(dir.Rotate(45))) &&
+				slices.Contains(group.plots, plot.MoveTowards(dir.Rotate(-45))) &&
+				!slices.Contains(group.plots, plot.MoveTowards(dir)) {
+				corners++
+				continue
+			}
+		}
+	}
+
+	return corners
 }
