@@ -1,5 +1,7 @@
 package utils
 
+import "fmt"
+
 type Grid [][]rune
 
 func StrToGrid(in string) Grid {
@@ -62,4 +64,17 @@ func (g Grid) Width() int {
 
 func (g Grid) Height() int {
 	return len(g)
+}
+
+func (g Grid) Print(strs map[Coordinate]string) {
+	for y := 0; y < g.Height(); y++ {
+		for x := 0; x < g.Width(); x++ {
+			if val, ok := strs[Coordinate{X: x, Y: y}]; ok {
+				fmt.Print(val)
+			} else {
+				fmt.Print(" ")
+			}
+		}
+		fmt.Print("\n")
+	}
 }

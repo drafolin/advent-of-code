@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/drafolin/advent-of-code/2024/utils"
+	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -28,9 +30,14 @@ func main() {
 
 	for i, line := range data {
 		bots[i] = parseBot(line)
-		bots[i].Pos = bots[i].Pos.Add(bots[i].Vel.MulInt(100)).Mod(utils.Coordinate{X: grid.Width(), Y: grid.Height()})
+	}
 
-		quad, isInQuad := grid.GetQuadrant(bots[i].Pos)
+	for i := range bots {
+		botsCpy := make([]Bot, len(bots))
+		copy(botsCpy, bots)
+
+		botsCpy[i].Pos = botsCpy[i].Pos.Add(botsCpy[i].Vel.MulInt(100)).Mod(utils.Coordinate{X: grid.Width(), Y: grid.Height()})
+		quad, isInQuad := grid.GetQuadrant(botsCpy[i].Pos)
 		if isInQuad {
 			quads[quad]++
 		}
@@ -44,6 +51,54 @@ func main() {
 
 	fmt.Println(safetyFactor)
 
+	seconds := 7371
+	for {
+		botsCpy := make([]Bot, len(bots))
+		copy(botsCpy, bots)
+		pos := make(map[utils.Coordinate]int)
+		for i := range botsCpy {
+			botsCpy[i].Pos = botsCpy[i].Pos.Add(botsCpy[i].Vel.MulInt(seconds)).Mod(utils.Coordinate{X: grid.Width(), Y: grid.Height()})
+			pos[botsCpy[i].Pos]++
+		}
+
+		posStrs := make(map[utils.Coordinate]string)
+
+		for coord, count := range pos {
+			if count >= 1 {
+				posStrs[coord] = "#"
+			} else {
+				posStrs[coord] = "."
+			}
+		}
+
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		err := cmd.Run()
+		if err != nil {
+			return
+		}
+
+		fmt.Println(seconds)
+		grid.Print(posStrs)
+
+		var input string
+		n, err := fmt.Scanln(&input)
+		if n == 0 {
+			input = ""
+			err = nil
+		}
+
+		if err != nil {
+			panic(err)
+		}
+
+		if input == "-" {
+			seconds--
+			continue
+		}
+
+		seconds++
+	}
 }
 
 func parseBot(line string) Bot {
