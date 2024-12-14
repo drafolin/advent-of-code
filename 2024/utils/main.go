@@ -21,3 +21,11 @@ func StrToNumberList(in string) ([]int, error) {
 
 	return res, nil
 }
+
+func StringToInt(str string) int {
+	num, err := strconv.Atoi(str)
+	if err != nil {
+		panic(err)
+	}
+	return num
+}

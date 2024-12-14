@@ -78,3 +78,21 @@ func (c Coordinate) Diff(other Coordinate) Coordinate {
 func (c Coordinate) Add(other Coordinate) Coordinate {
 	return Coordinate{X: c.X + other.X, Y: c.Y + other.Y}
 }
+
+func (c Coordinate) MulInt(i int) Coordinate {
+	return Coordinate{X: c.X * i, Y: c.Y * i}
+}
+
+func (c Coordinate) Mod(c2 Coordinate) Coordinate {
+	x := c.X % c2.X
+	if x < 0 {
+		x += c2.X
+	}
+
+	y := c.Y % c2.Y
+	if y < 0 {
+		y += c2.Y
+	}
+
+	return Coordinate{X: x, Y: y}
+}
