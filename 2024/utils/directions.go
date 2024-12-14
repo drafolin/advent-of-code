@@ -70,3 +70,18 @@ func (dir Direction) Rotate(ang Angle) Direction {
 
 	return Direction((int(dir) + int(ang)/45) % 8)
 }
+
+func DirectionFromRune(r rune) Direction {
+	switch r {
+	case '^':
+		return Up
+	case 'v', 'V':
+		return Down
+	case '<':
+		return Left
+	case '>':
+		return Right
+	}
+
+	return -1
+}
