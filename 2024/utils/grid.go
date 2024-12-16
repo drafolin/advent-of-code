@@ -78,3 +78,15 @@ func (g Grid) Print(strs map[Coordinate]string) {
 		fmt.Print("\n")
 	}
 }
+
+func (g Grid) Index(target rune) (Coordinate, bool) {
+	for y, line := range g {
+		for x, val := range line {
+			if val == target {
+				return Coordinate{X: x, Y: y}, true
+			}
+		}
+	}
+
+	return Coordinate{}, false
+}

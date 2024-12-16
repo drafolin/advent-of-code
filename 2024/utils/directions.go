@@ -85,3 +85,21 @@ func DirectionFromRune(r rune) Direction {
 
 	return -1
 }
+
+func DirectionFromVector(v struct{ X, Y int }) Direction {
+	if v.X == 0 {
+		if v.Y < 0 {
+			return Up
+		} else {
+			return Down
+		}
+	} else if v.Y == 0 {
+		if v.X < 0 {
+			return Left
+		} else {
+			return Right
+		}
+	}
+
+	return -1
+}
