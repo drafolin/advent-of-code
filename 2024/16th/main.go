@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/drafolin/advent-of-code/2024/utils"
 	"math"
 	"slices"
@@ -8,13 +9,14 @@ import (
 
 type Node struct {
 	coordinate utils.Coordinate
+	direction  utils.Direction
 	distance   int
-	parent     *Node
+	parents    []*Node
 }
 
 func main() {
 	//data := utils.StrToGrid("###############\n#.......#....E#\n#.#.###.#.###.#\n#.....#.#...#.#\n#.###.#####.#.#\n#.#.#.......#.#\n#.#.#####.###.#\n#...........#.#\n###.#.#####.#.#\n#...#.....#.#.#\n#.#.#.###.#.#.#\n#.....#...#.#.#\n#.###.#.#.#.#.#\n#S..#.....#...#\n###############")
-	// data := utils.StrToGrid("#################\n#...#...#...#..E#\n#.#.#.#.#.#.#.#.#\n#.#.#.#...#...#.#\n#.#.#.#.###.#.#.#\n#...#.#.#.....#.#\n#.#.#.#.#.#####.#\n#.#...#.#.#.....#\n#.#.#####.#.###.#\n#.#.#.......#...#\n#.#.###.#####.###\n#.#.#...#.....#.#\n#.#.#.#####.###.#\n#.#.#.........#.#\n#.#.#.#########.#\n#S#.............#\n#################")
+	//data := utils.StrToGrid("#################\n#...#...#...#..E#\n#.#.#.#.#.#.#.#.#\n#.#.#.#...#...#.#\n#.#.#.#.###.#.#.#\n#...#.#.#.....#.#\n#.#.#.#.#.#####.#\n#.#...#.#.#.....#\n#.#.#####.#.###.#\n#.#.#.......#...#\n#.#.###.#####.###\n#.#.#...#.....#.#\n#.#.#.#####.###.#\n#.#.#.........#.#\n#.#.#.#########.#\n#S#.............#\n#################")
 	data := utils.StrToGrid(utils.ReadInput("16th"))
 
 	start, found := data.Index('S')
@@ -33,15 +35,22 @@ func main() {
 		for x, cell := range line {
 			if cell != '#' {
 				distance := math.MaxInt
-				if x == start.X && y == start.Y {
-					distance = 0
-				}
+				for _, dir := range []utils.Direction{utils.Up, utils.Left, utils.Down, utils.Right} {
+					if x == start.X && y == start.Y && dir == utils.Right {
+						distance = 0
+					}
 
-				unvisited = append(unvisited, Node{coordinate: utils.Coordinate{X: x, Y: y}, distance: distance})
+					unvisited = append(unvisited, Node{
+						coordinate: utils.Coordinate{X: x, Y: y},
+						distance:   distance,
+						direction:  dir,
+					})
+				}
 			}
 		}
 	}
 
+djikstra:
 	for {
 		if len(unvisited) == 0 {
 			break
@@ -55,49 +64,70 @@ func main() {
 			break
 		}
 
-		var previousDirection utils.Direction
-		if current.parent != nil {
-			previousDirection = utils.DirectionFromVector(current.coordinate.Diff(current.parent.coordinate))
-		} else {
-			previousDirection = utils.Right
-		}
+		for _, dir := range []int{-90, 0, 90} {
+			newNode := current
+			var additionalDistance int
+			if dir == 0 {
+				newNode.coordinate = newNode.coordinate.MoveTowards(newNode.direction)
+				additionalDistance = 1
+			} else {
+				newNode.direction = current.direction.Rotate(utils.NewAngle(dir))
+				additionalDistance = 1000
+			}
 
-		for _, dir := range []utils.Direction{utils.Up, utils.Left, utils.Down, utils.Right} {
-			neighbor := current.coordinate.MoveTowards(dir)
-			if neighbor.IsInGrid(data) {
-				if data.At(neighbor) != '#' {
-					additionalDistance := 1
-
-					if dir != previousDirection {
-						additionalDistance = 1001
-					}
-
-					if dir == previousDirection.Opposite() {
-						additionalDistance = 2001
-					}
+			if newNode.coordinate.IsInGrid(data) {
+				if data.At(newNode.coordinate) != '#' {
 					neighborComparator := func(node Node) bool {
-						return node.coordinate == neighbor
+						return node.coordinate == newNode.coordinate && node.direction == newNode.direction
 					}
 
-					if !slices.ContainsFunc(unvisited, neighborComparator) {
+					var neighborIndex int
+					if neighborIndex = slices.IndexFunc(unvisited, neighborComparator); neighborIndex == -1 {
 						continue
 					}
-					neighborNode := &unvisited[slices.IndexFunc(unvisited, neighborComparator)]
+					neighborNode := &unvisited[neighborIndex]
 
 					if current.distance+additionalDistance < neighborNode.distance {
 						neighborNode.distance = current.distance + additionalDistance
-						neighborNode.parent = &current
+						neighborNode.parents = append(neighborNode.parents, &current)
+					} else if current.distance+additionalDistance == neighborNode.distance {
+						neighborNode.parents = append(neighborNode.parents, &current)
 					}
 
-					if neighbor == end {
-						println("Distance:", neighborNode.distance)
-						return
+					if neighborNode.coordinate == end {
+						fmt.Println("Distance:", neighborNode.distance)
+						break djikstra
 					}
 				}
 			}
 		}
 
-		index := slices.Index(unvisited, current)
+		index := slices.IndexFunc(unvisited, func(node Node) bool {
+			return node.coordinate == current.coordinate && node.direction == current.direction
+		})
 		unvisited = append(unvisited[:index], unvisited[index+1:]...)
 	}
+
+	ancestorsQueue := []*Node{&unvisited[slices.IndexFunc(unvisited, func(node Node) bool {
+		return node.coordinate == end
+	})]}
+	ancestors := make([]*Node, 0)
+
+	for len(ancestorsQueue) > 0 {
+		current := ancestorsQueue[0]
+		ancestorsQueue = ancestorsQueue[1:]
+
+		if !slices.ContainsFunc(ancestors, func(node *Node) bool {
+			return node.coordinate == current.coordinate
+		}) {
+			ancestors = append(ancestors, current)
+		}
+
+		for _, parent := range current.parents {
+			ancestorsQueue = append(ancestorsQueue, parent)
+		}
+	}
+
+	fmt.Println("Ancestors:", len(ancestors))
+
 }
