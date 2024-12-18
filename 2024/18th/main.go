@@ -55,10 +55,27 @@ func main() {
 		grid[coord.Y][coord.X].corrupted = true
 	}
 
-	_, distance, found := astar.Path(grid[0][0], grid[grid.Height()-1][grid.Width()-1])
-	if !found {
-		panic("No path found")
+	input = input[bytesToRead-1:]
+
+	firstRun := true
+	var lastCoord string
+
+	for {
+		_, distance, found := astar.Path(grid[0][0], grid[grid.Height()-1][grid.Width()-1])
+		if !found {
+			break
+		}
+
+		if firstRun {
+			fmt.Println(distance)
+			firstRun = false
+		}
+
+		lastCoord = input[0]
+		input = input[1:]
+		splittedCoord := strings.Split(lastCoord, ",")
+		grid[utils.StringToInt(splittedCoord[1])][utils.StringToInt(splittedCoord[0])].corrupted = true
 	}
 
-	fmt.Println(distance)
+	fmt.Println(lastCoord)
 }
