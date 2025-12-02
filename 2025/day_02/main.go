@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -35,7 +36,8 @@ func Main() {
 }
 
 func firstPart(ranges []string) {
-	total := 0
+	wg := sync.WaitGroup{}
+	ch := make(chan int)
 
 	for _, ids := range ranges {
 		minText, maxText, _ := strings.Cut(ids, "-")
@@ -43,25 +45,38 @@ func firstPart(ranges []string) {
 		min, _ := strconv.Atoi(minText)
 		max, _ := strconv.Atoi(maxText)
 
-		for i := min; i <= max; i++ {
-			digits := int(math.Log10(float64(i))) + 1
-			if digits%2 == 1 {
-				continue
-			}
+		wg.Go(func() {
+			for i := min; i <= max; i++ {
+				digits := int(math.Log10(float64(i))) + 1
+				if digits%2 == 1 {
+					continue
+				}
 
-			divisor := int(math.Pow10(digits/2) + 1)
+				divisor := int(math.Pow10(digits/2) + 1)
 
-			if i%divisor == 0 {
-				total += i
+				if i%divisor == 0 {
+					ch <- i
+				}
 			}
-		}
+		})
+	}
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	total := 0
+	for i := range ch {
+		total += i
 	}
 
 	fmt.Println(total)
 }
 
 func secondPart(ranges []string) {
-	total := 0
+	wg := sync.WaitGroup{}
+	ch := make(chan int)
 
 	for _, ids := range ranges {
 		minText, maxText, _ := strings.Cut(ids, "-")
@@ -69,26 +84,38 @@ func secondPart(ranges []string) {
 		min, _ := strconv.Atoi(minText)
 		max, _ := strconv.Atoi(maxText)
 
-		for i := min; i <= max; i++ {
-			id := strconv.Itoa(i)
+		wg.Go(func() {
+			for i := min; i <= max; i++ {
+				id := strconv.Itoa(i)
 
-		lengthsLoop:
-			for length := 1; length <= len(id)/2; length++ {
-				if (len(id) % (length)) != 0 {
-					continue
-				}
-
-				substr := id[0:length]
-				for index := length; index <= len(id)-length; index += length {
-					if id[index:index+length] != substr {
-						continue lengthsLoop
+			lengthsLoop:
+				for length := 1; length <= len(id)/2; length++ {
+					if (len(id) % (length)) != 0 {
+						continue
 					}
-				}
 
-				total += i
-				break lengthsLoop
+					substr := id[0:length]
+					for index := length; index <= len(id)-length; index += length {
+						if id[index:index+length] != substr {
+							continue lengthsLoop
+						}
+					}
+
+					ch <- i
+					break lengthsLoop
+				}
 			}
-		}
+		})
+	}
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	total := 0
+	for i := range ch {
+		total += i
 	}
 
 	fmt.Println(total)
