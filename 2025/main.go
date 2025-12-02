@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/drafolin/advent-of-code/2025/day_01"
+	"github.com/drafolin/advent-of-code/2025/day_02"
 )
 
 func main() {
@@ -13,5 +14,7 @@ func main() {
 	switch day {
 	case 1:
 		day_01.Main()
+	case 2:
+		day_02.Main()
 	}
 }
