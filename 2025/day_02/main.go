@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Main() {
@@ -14,21 +15,28 @@ func Main() {
 	}
 
 	s := string(f)
-
 	// 	s = `11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124
 	// `
-	firstPart(s)
-	secondPart(s)
+
+	trimmed := s[:len(s)-1]
+
+	ranges := strings.Split(trimmed, ",")
+
+	timeStart := time.Now()
+	firstPart(ranges)
+	timeEnd := time.Now()
+	fmt.Println("First part took", timeEnd.Sub(timeStart))
+
+	timeStart = time.Now()
+	secondPart(ranges)
+	timeEnd = time.Now()
+	fmt.Println("Second part took", timeEnd.Sub(timeStart))
 }
 
-func firstPart(input string) {
-	trimmed := input[:len(input)-1]
-
-	ranges := strings.SplitSeq(trimmed, ",")
-
+func firstPart(ranges []string) {
 	total := 0
 
-	for ids := range ranges {
+	for _, ids := range ranges {
 		minText, maxText, _ := strings.Cut(ids, "-")
 
 		min, _ := strconv.Atoi(minText)
@@ -46,14 +54,10 @@ func firstPart(input string) {
 	fmt.Println(total)
 }
 
-func secondPart(input string) {
-	trimmed := input[:len(input)-1]
-
-	ranges := strings.SplitSeq(trimmed, ",")
-
+func secondPart(ranges []string) {
 	total := 0
 
-	for ids := range ranges {
+	for _, ids := range ranges {
 		minText, maxText, _ := strings.Cut(ids, "-")
 
 		min, _ := strconv.Atoi(minText)
