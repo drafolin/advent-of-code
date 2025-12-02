@@ -2,6 +2,7 @@ package day_02
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -43,9 +44,14 @@ func firstPart(ranges []string) {
 		max, _ := strconv.Atoi(maxText)
 
 		for i := min; i <= max; i++ {
-			id := strconv.Itoa(i)
+			digits := int(math.Log10(float64(i))) + 1
+			if digits%2 == 1 {
+				continue
+			}
 
-			if id[0:len(id)/2] == id[len(id)/2:] {
+			divisor := int(math.Pow10(digits/2) + 1)
+
+			if i%divisor == 0 {
 				total += i
 			}
 		}
