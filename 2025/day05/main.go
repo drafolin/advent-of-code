@@ -1,4 +1,4 @@
-package day_05
+package day05
 
 import (
 	"fmt"
@@ -57,20 +57,6 @@ func (i1 interval) merge(i2 interval) (ok bool, result interval) {
 func Main() {
 	f, _ := os.ReadFile("day_05/input")
 	s := string(f)
-
-	// 	s = `3-5
-	// 10-14
-	// 16-20
-	// 12-18
-
-	// 1
-	// 5
-	// 8
-	// 11
-	// 17
-	// 32
-	// `
-
 	s = s[:len(s)-1]
 
 	input := strings.Split(s, "\n\n")
@@ -97,17 +83,19 @@ func Main() {
 	copy(ingredientsCpy, ingredients)
 
 	timeStart := time.Now()
-	partOne(intervalsCpy, ingredientsCpy)
+	res := firstPart(intervalsCpy, ingredientsCpy)
 	timeEnd := time.Now()
 	fmt.Println("First part took", timeEnd.Sub(timeStart))
+	fmt.Println("First part result: ", res)
 
 	timeStart = time.Now()
-	partTwo(intervals)
+	res = secondPart(intervals)
 	timeEnd = time.Now()
 	fmt.Println("Second part took", timeEnd.Sub(timeStart))
+	fmt.Println("Second part result: ", res)
 }
 
-func partOne(freshIngredients []interval, ingredients []int) {
+func firstPart(freshIngredients []interval, ingredients []int) (total int) {
 	slices.SortFunc(freshIngredients, func(a interval, b interval) int {
 		return a.From - b.From
 	})
@@ -123,7 +111,6 @@ func partOne(freshIngredients []interval, ingredients []int) {
 		}
 	}
 
-	total := 0
 	for _, ingredient := range ingredients {
 		if slices.ContainsFunc(finalFreshIngredients, func(i interval) bool {
 			return ingredient >= i.From && ingredient <= i.To
@@ -132,10 +119,10 @@ func partOne(freshIngredients []interval, ingredients []int) {
 		}
 	}
 
-	fmt.Println(total)
+	return
 }
 
-func partTwo(freshIngredients []interval) {
+func secondPart(freshIngredients []interval) (total int) {
 	slices.SortFunc(freshIngredients, func(a interval, b interval) int {
 		return a.From - b.From
 	})
@@ -151,10 +138,9 @@ func partTwo(freshIngredients []interval) {
 		}
 	}
 
-	total := 0
 	for _, interval := range finalFreshIngredients {
 		total += interval.To - interval.From + 1
 	}
 
-	fmt.Println(total)
+	return
 }

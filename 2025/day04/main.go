@@ -1,4 +1,4 @@
-package day_04
+package day04
 
 import (
 	"fmt"
@@ -21,20 +21,6 @@ func Main() {
 	}
 
 	s := string(f)
-
-	/*
-			s = `..@@.@@@@.
-		@@@.@.@.@@
-		@@@@@.@.@@
-		@.@@@@..@.
-		@@.@@@@.@@
-		.@@@@@@@.@
-		.@.@.@.@@@
-		@.@@@.@@@@
-		.@@@@@@@@.
-		@.@.@@@.@.
-		`
-	*/
 	s = s[:len(s)-1]
 
 	lines := strings.Split(s, "\n")
@@ -47,18 +33,19 @@ func Main() {
 	}
 
 	timeStart := time.Now()
-	firstPart(grid)
+	res := firstPart(grid)
 	timeEnd := time.Now()
 	fmt.Println("First part took", timeEnd.Sub(timeStart))
+	fmt.Println("First part result: ", res)
 
 	timeStart = time.Now()
-	secondPart(grid)
+	res = secondPart(grid)
 	timeEnd = time.Now()
 	fmt.Println("Second part took", timeEnd.Sub(timeStart))
+	fmt.Println("Second part result: ", res)
 }
 
-func firstPart(grid Grid) {
-	totalAccessible := 0
+func firstPart(grid Grid) (totalAccessible int) {
 	for y, row := range grid {
 		for x := range row {
 			if !grid[y][x] {
@@ -89,11 +76,10 @@ func firstPart(grid Grid) {
 		}
 	}
 
-	fmt.Println(totalAccessible)
+	return
 }
 
-func secondPart(grid Grid) {
-	totalRemoved := 0
+func secondPart(grid Grid) (totalRemoved int) {
 	for {
 		toRemove := []struct {
 			y int
@@ -144,4 +130,5 @@ func secondPart(grid Grid) {
 	}
 
 	fmt.Println(totalRemoved)
+	return
 }

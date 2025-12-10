@@ -1,4 +1,4 @@
-package day_07
+package day07
 
 import (
 	"fmt"
@@ -15,25 +15,6 @@ func Main() {
 	}
 
 	s := string(f)
-
-	// 	s = `.......S.......
-	// ...............
-	// .......^.......
-	// ...............
-	// ......^.^......
-	// ...............
-	// .....^.^.^.....
-	// ...............
-	// ....^.^...^....
-	// ...............
-	// ...^.^...^.^...
-	// ...............
-	// ..^...^.....^..
-	// ...............
-	// .^.^.^.^.^...^.
-	// ...............
-	// `
-
 	s = s[:len(s)-1]
 
 	lines := strings.Split(s, "\n")
@@ -47,17 +28,19 @@ func Main() {
 	}
 
 	timeStart := time.Now()
-	firstPart(grid)
+	res := firstPart(grid)
 	timeEnd := time.Now()
 	fmt.Println("First part took", timeEnd.Sub(timeStart))
+	fmt.Println("First part result: ", res)
 
 	timeStart = time.Now()
-	secondPart(grid)
+	res = secondPart(grid)
 	timeEnd = time.Now()
 	fmt.Println("Second part took", timeEnd.Sub(timeStart))
+	fmt.Println("Second part result: ", res)
 }
 
-func firstPart(input [][]rune) {
+func firstPart(input [][]rune) (total int) {
 	tachions := make([]int, 0)
 	for i, char := range input[0] {
 		if char == 'S' {
@@ -65,7 +48,6 @@ func firstPart(input [][]rune) {
 		}
 	}
 	input = input[1:]
-	total := 0
 
 	for _, line := range input {
 		newTachions := make([]int, 0)
@@ -86,7 +68,7 @@ func firstPart(input [][]rune) {
 		}
 	}
 
-	fmt.Println(total)
+	return
 }
 
 type coordinate struct {
@@ -130,7 +112,7 @@ func parseFromPosition(input [][]rune, coord coordinate) int {
 	}
 }
 
-func secondPart(input [][]rune) {
+func secondPart(input [][]rune) (total int) {
 	tachions := make([]int, 0)
 	for i, char := range input[0] {
 		if char == 'S' {
@@ -138,11 +120,10 @@ func secondPart(input [][]rune) {
 		}
 	}
 	input = input[1:]
-	total := 0
 
 	for _, tachion := range tachions {
 		total += parseFromPosition(input, coordinate{X: tachion, Y: 0})
 	}
 
-	fmt.Println(total)
+	return
 }

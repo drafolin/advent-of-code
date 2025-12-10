@@ -1,4 +1,4 @@
-package day_03
+package day03
 
 import (
 	"fmt"
@@ -17,31 +17,24 @@ func Main() {
 
 	s := string(f)
 
-	/*
-			s = `987654321111111
-		811111111111119
-		234234234234278
-		818181911112111
-		`
-	*/
 	s = s[:len(s)-1]
 
 	lines := strings.Split(s, "\n")
 
 	timeStart := time.Now()
-	firstPart(lines)
+	res := firstPart(lines)
 	timeEnd := time.Now()
 	fmt.Println("First part took", timeEnd.Sub(timeStart))
+	fmt.Println("First part result: ", res)
 
 	timeStart = time.Now()
-	secondPart(lines)
+	res = secondPart(lines)
 	timeEnd = time.Now()
 	fmt.Println("Second part took", timeEnd.Sub(timeStart))
+	fmt.Println("Second part result: ", res)
 }
 
-func firstPart(lines []string) {
-	total := 0
-
+func firstPart(lines []string) (total int) {
 	for _, line := range lines {
 		tenths := -1
 		units := -1
@@ -63,13 +56,12 @@ func firstPart(lines []string) {
 		total += tenths*10 + units
 	}
 
-	fmt.Println(total)
+	return
 }
 
 /* No parallelization, because benchmark shows that making the threads is slower than just doing it sequentially. */
-func secondPart(lines []string) {
+func secondPart(lines []string) (total int) {
 	const JoltageDigits = 12
-	total := 0
 
 	for _, bank := range lines {
 		bankJoltages := make([]int, JoltageDigits)
@@ -108,5 +100,5 @@ func secondPart(lines []string) {
 		total += bankJoltage
 	}
 
-	fmt.Println(total)
+	return
 }

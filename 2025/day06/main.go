@@ -1,4 +1,4 @@
-package day_06
+package day06
 
 import (
 	"fmt"
@@ -15,28 +15,24 @@ func Main() {
 	}
 
 	s := string(f)
-	// 	s = `123 328  51 64
-	//  45 64  387 23
-	//   6 98  215 314
-	// *   +   *   +
-	// `
-
 	s = s[:len(s)-1]
 
+	lines := strings.Split(s, "\n")
+
 	timeStart := time.Now()
-	firstPart(s)
+	res := firstPart(lines)
 	timeEnd := time.Now()
 	fmt.Println("First part took", timeEnd.Sub(timeStart))
+	fmt.Println("First part result: ", res)
 
 	timeStart = time.Now()
-	secondPart(s)
+	res = secondPart(lines)
 	timeEnd = time.Now()
 	fmt.Println("Second part took", timeEnd.Sub(timeStart))
+	fmt.Println("Second part result: ", res)
 }
 
-func firstPart(input string) {
-	lines := strings.Split(input, "\n")
-
+func firstPart(lines []string) (grandTotal int) {
 	data := make([][]string, 0)
 	for _, line := range lines {
 		parts := strings.Split(line, " ")
@@ -58,7 +54,6 @@ func firstPart(input string) {
 		}
 	}
 
-	grandTotal := 0
 	for _, column := range data {
 		operator := column[len(column)-1]
 		numbers := column[:len(column)-1]
@@ -78,20 +73,15 @@ func firstPart(input string) {
 		grandTotal += total
 	}
 
-	fmt.Println(grandTotal)
+	return
 }
 
-func secondPart(input string) {
-	lines := strings.Split(input, "\n")
-
-	// data := make([][]string, 0)
-
+func secondPart(lines []string) (grandTotal int) {
 	rangeStart := 0
 	rangeIndex := 0
 
 	operatorsLine := lines[len(lines)-1]
 	operatorsLine += " " + string(rune(0))
-	grandTotal := 0
 	for i, char := range operatorsLine {
 		if i == 0 {
 			continue
@@ -130,5 +120,5 @@ func secondPart(input string) {
 		rangeIndex++
 	}
 
-	fmt.Println(grandTotal)
+	return
 }

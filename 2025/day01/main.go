@@ -1,4 +1,4 @@
-package day_01
+package day01
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Main() {
@@ -15,28 +16,25 @@ func Main() {
 	}
 
 	s := string(f)
+	s = s[:len(s)-1]
+	lines := strings.Split(s, "\n")
 
-	s = `L68
-L30
-R48
-L5
-R60
-L55
-L1
-L99
-R14
-L82
-`
+	timeStart := time.Now()
+	res := firstPart(lines)
+	timeEnd := time.Now()
+	fmt.Println("Part 1 took ", timeEnd.Sub(timeStart))
+	fmt.Println("Part 1 solution: ", res)
 
-	firstPart(s)
-	secondPart(s)
+	timeStart = time.Now()
+	res = secondPart(lines)
+	timeEnd = time.Now()
+	fmt.Println("Part 2 took ", timeEnd.Sub(timeStart))
+	fmt.Println("Part 2 solution: ", res)
 }
 
-func firstPart(input string) {
-	lines := strings.SplitSeq(input[:len(input)-1], "\n")
+func firstPart(lines []string) (turns int) {
 	val := 50
-	turns := 0
-	for line := range lines {
+	for _, line := range lines {
 		operation := line[0]
 		amount, _ := strconv.Atoi(line[1:])
 
@@ -55,16 +53,13 @@ func firstPart(input string) {
 			turns++
 		}
 	}
-
-	fmt.Println(turns)
+	return
 }
 
-func secondPart(input string) {
-
-	lines := strings.SplitSeq(input[:len(input)-1], "\n")
+func secondPart(lines []string) (turns int) {
 	val := 50
-	turns := 0
-	for line := range lines {
+
+	for _, line := range lines {
 		operation := line[0]
 		amount, _ := strconv.Atoi(line[1:])
 
@@ -94,5 +89,5 @@ func secondPart(input string) {
 		}
 	}
 
-	fmt.Println(turns)
+	return
 }

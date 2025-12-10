@@ -1,4 +1,4 @@
-package day_02
+package day02
 
 import (
 	"fmt"
@@ -17,25 +17,25 @@ func Main() {
 	}
 
 	s := string(f)
-	// 	s = `11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124
-	// `
 
 	trimmed := s[:len(s)-1]
 
 	ranges := strings.Split(trimmed, ",")
 
 	timeStart := time.Now()
-	firstPart(ranges)
+	res := firstPart(ranges)
 	timeEnd := time.Now()
 	fmt.Println("First part took", timeEnd.Sub(timeStart))
+	fmt.Println("First part result: ", res)
 
 	timeStart = time.Now()
-	secondPart(ranges)
+	res = secondPart(ranges)
 	timeEnd = time.Now()
 	fmt.Println("Second part took", timeEnd.Sub(timeStart))
+	fmt.Println("Second part result: ", res)
 }
 
-func firstPart(ranges []string) {
+func firstPart(ranges []string) (total int) {
 	wg := sync.WaitGroup{}
 	ch := make(chan int)
 
@@ -66,15 +66,14 @@ func firstPart(ranges []string) {
 		close(ch)
 	}()
 
-	total := 0
 	for i := range ch {
 		total += i
 	}
 
-	fmt.Println(total)
+	return
 }
 
-func secondPart(ranges []string) {
+func secondPart(ranges []string) (total int) {
 	wg := sync.WaitGroup{}
 	ch := make(chan int)
 
@@ -113,10 +112,9 @@ func secondPart(ranges []string) {
 		close(ch)
 	}()
 
-	total := 0
 	for i := range ch {
 		total += i
 	}
 
-	fmt.Println(total)
+	return
 }
