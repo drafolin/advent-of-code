@@ -14,6 +14,7 @@ import (
 	"github.com/drafolin/advent-of-code/2025/day09"
 	"github.com/drafolin/advent-of-code/2025/day10"
 	"github.com/drafolin/advent-of-code/2025/day11"
+	"github.com/drafolin/advent-of-code/2025/day12"
 )
 
 func main() {
@@ -42,5 +43,7 @@ func main() {
 		day10.Main()
 	case "day11":
 		day11.Main()
+	case "day12":
+		day12.Main()
 	}
 }
